@@ -6,10 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test \"tests/**/*.test.ts\"",
+    "test:watch": "node --import tsx --test --watch \"tests/**/*.test.ts\""
   },
   "dependencies": {
-    "next": "^15.2.4",
+    "next": "^15.5.26",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
@@ -17,6 +19,13 @@
     "@types/node": "^22.13.14",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
+    "tsx": "^4.23.15",
     "typescript": "^5.8.2"
+  },
+  "overrides": {
+    "postcss": "^8.5.28"
+  },
+  "engines": {
+    "node": "24.x"
   }
 }
