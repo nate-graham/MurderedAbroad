@@ -1,6 +1,5 @@
-// Shared request/response contract for POST /api/chat.
-// These types mirror the JSON the route currently returns; they are not yet
-// imported by the route or the chat component.
+// Shared request/response contract for POST /api/chat, used by the route and the
+// chat component.
 
 export type ChatRequest = {
   message: string;

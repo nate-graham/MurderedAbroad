@@ -1,9 +1,10 @@
 // Central contact and signposting configuration.
 //
-// Values below mirror what the app currently hardcodes in app/api/chat/route.ts
-// and the chat component. None are client-approved yet, and this module is not
-// yet used by the app. The helpline number in particular could not be found on
-// murdered-abroad.org.uk and must be confirmed by the client before launch.
+// The primary contact's email, phone and URL are used by lib/fixed-responses.ts.
+// The chat component's signposting box and the knowledge-base contact entry still
+// hardcode their own copies. None of these values are client-approved yet. The
+// helpline number in particular could not be found on murdered-abroad.org.uk and
+// must be confirmed by the client before launch.
 
 export type ApprovalStatus = 'pending-client-approval' | 'approved';
 
@@ -27,6 +28,14 @@ export type SignpostingConfig = {
   // Shown when there may be immediate danger.
   emergencyContact: SignpostingContact;
 };
+
+export function getContactMethod(contact: SignpostingContact, kind: ContactMethod['kind']): string {
+  const method = contact.methods.find((candidate) => candidate.kind === kind);
+  if (!method) {
+    throw new Error(`Signposting contact "${contact.id}" has no ${kind} contact method`);
+  }
+  return method.value;
+}
 
 const murderedAbroadCharity: SignpostingContact = {
   id: 'murdered-abroad-charity',

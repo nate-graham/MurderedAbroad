@@ -1,6 +1,5 @@
-// Knowledge-base entry type and runtime validation for data/knowledge-base.json.
-// Describes the current entry shape; the knowledge base itself is not yet
-// loaded through this module.
+// Knowledge-base entry type and runtime validation for data/knowledge-base.json,
+// applied by lib/knowledge-base.ts on every load.
 
 export type KnowledgeEntry = {
   title: string;

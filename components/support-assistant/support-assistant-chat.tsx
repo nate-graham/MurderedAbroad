@@ -1,15 +1,9 @@
 'use client';
 
 import { FormEvent, useEffect, useRef, useState } from 'react';
+import type { ChatErrorResponse, ChatSource, ChatSuccessResponse } from '@/lib/chat-types';
 
 type ChatRole = 'assistant' | 'user';
-
-type ChatSource = {
-  title: string;
-  sourceName: string;
-  sourceUrl: string;
-  category: string;
-};
 
 type ChatMessage = {
   id: string;
@@ -74,12 +68,8 @@ export function SupportAssistantChat() {
         body: JSON.stringify({ message: trimmed }),
       });
 
-      const data = (await response.json()) as {
-        answer?: string;
-        sources?: ChatSource[];
-        fallbackUsed?: boolean;
-        error?: string;
-      };
+      const data = (await response.json()) as Partial<ChatSuccessResponse> &
+        Partial<ChatErrorResponse>;
 
       if (!response.ok || !data.answer) {
         throw new Error(data.error || 'The assistant could not respond.');
