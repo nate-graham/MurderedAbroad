@@ -4,7 +4,13 @@
 // to change in a later phase.
 import assert from 'node:assert/strict';
 import { beforeEach, describe, test, type TestContext } from 'node:test';
-import { askChat, askChatExpectingError, postChat, silenceConsole } from './helpers/chat-route';
+import {
+  askChat,
+  askChatExpectingError,
+  postChat,
+  silenceConsole,
+  UNSUPPORTED_QUESTION,
+} from './helpers/chat-route';
 
 const FALLBACK_ANSWER =
   'I could not find a clear answer in the approved source material.\n\nThe safest next step is to contact Murdered Abroad Charity directly: support@murdered-abroad.org.uk or helpline 0845 123 2384.\n\nYou can also contact the nearest British Embassy, High Commission or Consulate, or local police/authorities in the country involved. If there is immediate danger, contact emergency services immediately.';
@@ -54,7 +60,7 @@ beforeEach(() => {
 describe('exact fixed responses', () => {
   test('fallback response is byte-identical', async (t) => {
     captureFetch(t, okCompletion('unused'));
-    const { status, json } = await askChat('lawyer');
+    const { status, json } = await askChat(UNSUPPORTED_QUESTION);
 
     assert.equal(status, 200);
     assert.deepEqual(json, { answer: FALLBACK_ANSWER, sources: [CONTACT_SOURCE], fallbackUsed: true });
@@ -81,6 +87,8 @@ describe('exact OpenAI request', () => {
     const calls = captureFetch(t, okCompletion('Answer'));
     await askChat('lawyers');
 
+    // Since Phase 2B-1 retrieval selects only the lawyers entry for "lawyers"; the
+    // multi-entry join format is pinned by the buildContext unit test.
     assert.equal(calls.length, 1);
     const [{ url, init }] = calls;
     assert.equal(url, 'https://api.openai.com/v1/chat/completions');
@@ -94,9 +102,7 @@ describe('exact OpenAI request', () => {
           role: 'user',
           content:
             'User question:\nlawyers\n\nApproved source context:\n' +
-            `Context 1\nTitle: Lawyers abroad\nCategory: lawyers\nSource name: GOV.UK\nSource URL: ${GOV_UK_GUIDE_URL}\nContent: GOV.UK says investigations and legal proceedings abroad can take an unknown amount of time. Families could consider appointing a local lawyer to support them through the legal process. The FCDO case manager can help explain what to expect and provide a list of local lawyers.` +
-            '\n\n' +
-            `Context 2\nTitle: Ongoing FCDO and consular support\nCategory: embassy_consulate\nSource name: GOV.UK\nSource URL: ${GOV_UK_GUIDE_URL}\nContent: GOV.UK says ongoing FCDO support may include advice on local customs and what to expect, help arranging airport assistance, the option to meet a consular officer at the nearest British embassy or consulate, help arranging a meeting with local police or investigating authorities, lists of English-speaking lawyers and translators, support attending some overseas trial dates, and advice on media interest.`,
+            `Context 1\nTitle: Lawyers abroad\nCategory: lawyers\nSource name: GOV.UK\nSource URL: ${GOV_UK_GUIDE_URL}\nContent: GOV.UK says investigations and legal proceedings abroad can take an unknown amount of time. Families could consider appointing a local lawyer to support them through the legal process. The FCDO case manager can help explain what to expect and provide a list of local lawyers.`,
         },
       ],
       temperature: 0.2,
@@ -125,7 +131,7 @@ describe('ordering of checks', () => {
   test('missing API key does not affect fallback questions', async (t) => {
     delete process.env.OPENAI_API_KEY;
     const calls = captureFetch(t, okCompletion('unused'));
-    const { status, json } = await askChat('lawyer');
+    const { status, json } = await askChat(UNSUPPORTED_QUESTION);
 
     assert.equal(status, 200);
     assert.equal(json.answer, FALLBACK_ANSWER);

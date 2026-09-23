@@ -1,6 +1,8 @@
 // Baseline: documents CURRENT retrieval behaviour of POST /api/chat.
 // Cases marked KNOWN WEAKNESS assert behaviour that is incorrect and is expected
 // to change in a later phase. Update those assertions deliberately when fixing.
+// Phase 2B-1 fixed the singular/plural, repetition, keyword-collision and
+// unrelated-context cases below.
 import assert from 'node:assert/strict';
 import { beforeEach, describe, test } from 'node:test';
 import { askChat, contextTitles, FALLBACK_PREFIX, mockOpenAI } from './helpers/chat-route';
@@ -11,34 +13,38 @@ beforeEach(() => {
 });
 
 describe('retrieval baseline', () => {
-  test('"lawyers" retrieves the lawyers entry first', async (t) => {
+  test('"lawyers" retrieves only the lawyers entry', async (t) => {
     const calls = mockOpenAI(t);
     const { json } = await askChat('lawyers');
 
     assert.equal(calls.length, 1);
-    assert.deepEqual(contextTitles(calls[0]), ['Lawyers abroad', 'Ongoing FCDO and consular support']);
-    assert.equal(json.fallbackUsed, false);
-  });
-
-  test('KNOWN WEAKNESS: "lawyer" (singular) does not match "Lawyers abroad" and falls back', async (t) => {
-    const calls = mockOpenAI(t);
-    const { json } = await askChat('lawyer');
-
-    assert.equal(calls.length, 0);
-    assert.equal(json.fallbackUsed, true);
-    assert.ok(json.answer.startsWith(FALLBACK_PREFIX));
-  });
-
-  test('KNOWN WEAKNESS: repeating "lawyer" inflates the score past the fallback threshold', async (t) => {
-    const calls = mockOpenAI(t);
-    const { json } = await askChat('lawyer lawyer lawyer lawyer');
-
-    assert.equal(calls.length, 1);
+    // "Ongoing FCDO and consular support" only mentions lawyers in passing and is below
+    // the relative score floor.
     assert.deepEqual(contextTitles(calls[0]), ['Lawyers abroad']);
     assert.equal(json.fallbackUsed, false);
   });
 
-  test('KNOWN WEAKNESS: "How much will that cost?" does not match "costs" and falls back', async (t) => {
+  test('"lawyer" (singular) retrieves the same context as "lawyers"', async (t) => {
+    const calls = mockOpenAI(t);
+    const { json } = await askChat('lawyer');
+    await askChat('lawyers');
+
+    assert.equal(calls.length, 2);
+    assert.deepEqual(contextTitles(calls[0]), ['Lawyers abroad']);
+    assert.deepEqual(contextTitles(calls[0]), contextTitles(calls[1]));
+    assert.equal(json.fallbackUsed, false);
+  });
+
+  test('repeating "lawyer" gives the same context as asking once', async (t) => {
+    const calls = mockOpenAI(t);
+    await askChat('lawyer lawyer lawyer lawyer');
+    await askChat('lawyer');
+
+    assert.equal(calls.length, 2);
+    assert.deepEqual(contextTitles(calls[0]), contextTitles(calls[1]));
+  });
+
+  test('KNOWN WEAKNESS: contextless follow-up "How much will that cost?" falls back until conversation context exists', async (t) => {
     const calls = mockOpenAI(t);
     const { json } = await askChat('How much will that cost?');
 
@@ -47,28 +53,21 @@ describe('retrieval baseline', () => {
     assert.ok(json.answer.startsWith(FALLBACK_PREFIX));
   });
 
-  test('KNOWN WEAKNESS: out-of-scope passport question is sent to the model with unrelated context', async (t) => {
+  test('out-of-scope passport question falls back without calling the model', async (t) => {
     const calls = mockOpenAI(t);
     const { json } = await askChat('Can the embassy renew my passport?');
 
-    assert.equal(calls.length, 1);
-    assert.deepEqual(contextTitles(calls[0]), ['Ongoing FCDO and consular support']);
-    assert.equal(json.fallbackUsed, false);
+    assert.equal(calls.length, 0);
+    assert.equal(json.fallbackUsed, true);
+    assert.ok(json.answer.startsWith(FALLBACK_PREFIX));
   });
 
-  test('KNOWN WEAKNESS: language question ranks the right entry first but includes unrelated entries', async (t) => {
+  test('language question sends only the language entry to the model', async (t) => {
     const calls = mockOpenAI(t);
     await askChat('What if I do not speak the language?');
 
     assert.equal(calls.length, 1);
-    // "not" is not a stop word, so coroner/repatriation entries containing "not" are included.
-    assert.deepEqual(contextTitles(calls[0]), [
-      'What if I do not speak the language',
-      'Coroner information from Murdered Abroad',
-      'Repatriation advice from Murdered Abroad',
-      'Coroner involvement after repatriation',
-      'Post-mortem after repatriation',
-    ]);
+    assert.deepEqual(contextTitles(calls[0]), ['What if I do not speak the language']);
   });
 
   test('retrieval is deterministic for the same input', async (t) => {

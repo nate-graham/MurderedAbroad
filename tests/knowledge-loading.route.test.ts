@@ -80,6 +80,7 @@ describe('knowledge-base validation failures', () => {
 
   test('entry missing a required field returns the generic 500 and logs a validation error', async (t) => {
     const entryWithoutContent = {
+      id: 'govuk-lawyers-abroad',
       title: 'Lawyers abroad',
       sourceName: 'GOV.UK',
       sourceUrl: 'https://www.gov.uk/example',

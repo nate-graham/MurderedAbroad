@@ -4,6 +4,7 @@ import knowledgeBase from '@/data/knowledge-base.json';
 import { KnowledgeBaseValidationError, parseKnowledgeBase } from '@/lib/knowledge-schema';
 
 const validEntry = {
+  id: 'example-entry',
   title: 'Title',
   sourceName: 'GOV.UK',
   sourceUrl: 'https://www.gov.uk/example',

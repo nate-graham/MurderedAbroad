@@ -1,11 +1,22 @@
-// Contract tests for parseKnowledgeBase: validation must not rewrite source content.
+// Contract tests for parseKnowledgeBase: validation must not rewrite source content,
+// must retain evidence IDs and must reject undocumented fields.
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
-import { parseKnowledgeBase } from '@/lib/knowledge-schema';
+import { KnowledgeBaseValidationError, parseKnowledgeBase } from '@/lib/knowledge-schema';
+
+const validEntry = {
+  id: 'govuk-lawyers-abroad',
+  title: 'Lawyers abroad',
+  sourceName: 'GOV.UK',
+  sourceUrl: 'https://www.gov.uk/example',
+  category: 'lawyers',
+  content: 'Content',
+};
 
 describe('parseKnowledgeBase content preservation', () => {
   test('retains string values exactly, without trimming or rewriting', () => {
     const entry = {
+      id: 'padded-entry',
       title: '  Padded title  ',
       sourceName: ' GOV.UK ',
       sourceUrl: 'https://www.gov.uk/example?x=1#section',
@@ -17,16 +28,7 @@ describe('parseKnowledgeBase content preservation', () => {
   });
 
   test('does not mutate the input', () => {
-    const input = [
-      {
-        title: ' T ',
-        sourceName: 'S',
-        sourceUrl: 'https://example.org/',
-        category: 'c',
-        content: ' C ',
-        extra: 'kept on input',
-      },
-    ];
+    const input = [{ ...validEntry, title: ' T ', content: ' C ' }];
     const snapshot = structuredClone(input);
 
     parseKnowledgeBase(input);
@@ -34,24 +36,44 @@ describe('parseKnowledgeBase content preservation', () => {
     assert.deepEqual(input, snapshot);
   });
 
-  // CURRENT BEHAVIOUR (temporary): unknown fields are silently dropped.
-  // Phase 2B introduces stable IDs and must update the schema in the same change;
-  // update this test deliberately at that point.
-  test('CURRENT BEHAVIOUR (temporary): unknown fields are dropped', () => {
-    const [parsed] = parseKnowledgeBase([
-      {
-        id: 'lawyers-abroad',
-        title: 'Lawyers abroad',
-        sourceName: 'GOV.UK',
-        sourceUrl: 'https://www.gov.uk/example',
-        category: 'lawyers',
-        content: 'Content',
-        extra: 'ignored',
-      },
-    ]);
+  test('retains the evidence id', () => {
+    const [parsed] = parseKnowledgeBase([validEntry]);
 
-    assert.deepEqual(Object.keys(parsed), ['title', 'sourceName', 'sourceUrl', 'category', 'content']);
-    assert.ok(!('id' in parsed));
-    assert.ok(!('extra' in parsed));
+    assert.equal(parsed.id, 'govuk-lawyers-abroad');
+    assert.deepEqual(Object.keys(parsed), ['id', 'title', 'sourceName', 'sourceUrl', 'category', 'content']);
+  });
+});
+
+describe('parseKnowledgeBase id and field rules', () => {
+  test('rejects an unknown field instead of silently dropping it', () => {
+    assert.throws(
+      () => parseKnowledgeBase([{ ...validEntry, reviewedBy: 'someone' }]),
+      (error: unknown) =>
+        error instanceof KnowledgeBaseValidationError &&
+        error.message === 'Entry 0 has an unknown field "reviewedBy"'
+    );
+  });
+
+  test('rejects a missing id', () => {
+    const { id: _id, ...withoutId } = validEntry;
+    assert.throws(() => parseKnowledgeBase([withoutId]), /Entry 0 has a missing or empty "id"/);
+  });
+
+  for (const badId of ['Govuk-Lawyers', 'govuk_lawyers', 'govuk--lawyers', '-govuk', 'govuk-', 'govuk lawyers']) {
+    test(`rejects id "${badId}" that is not lowercase kebab-case`, () => {
+      assert.throws(
+        () => parseKnowledgeBase([{ ...validEntry, id: badId }]),
+        /must be lowercase kebab-case/
+      );
+    });
+  }
+
+  test('rejects duplicate ids and names both positions', () => {
+    assert.throws(
+      () => parseKnowledgeBase([validEntry, { ...validEntry, title: 'Another' }]),
+      (error: unknown) =>
+        error instanceof KnowledgeBaseValidationError &&
+        error.message === 'Duplicate id "govuk-lawyers-abroad" at entries 0 and 1'
+    );
   });
 });

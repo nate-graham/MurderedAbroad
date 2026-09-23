@@ -1,5 +1,6 @@
 [
   {
+    "id": "govuk-first-steps",
     "title": "What to do first after murder or manslaughter abroad",
     "sourceName": "GOV.UK",
     "sourceUrl": "https://www.gov.uk/government/publications/murder-and-manslaughter-abroad-family-information-guide/murder-and-manslaughter-abroad-family-information-guide-for-england-and-wales",
@@ -7,6 +8,7 @@
     "content": "GOV.UK says families in England and Wales should contact the Foreign, Commonwealth and Development Office if a family member has died by murder or manslaughter abroad. The guide says to call the FCDO 24/7 helpline and select consular services for British nationals. Once contact is made, an FCDO case manager should get in touch, understand what support the family needs, and pass on information received from overseas authorities."
   },
   {
+    "id": "govuk-who-to-contact",
     "title": "Who to contact for help",
     "sourceName": "GOV.UK",
     "sourceUrl": "https://www.gov.uk/government/publications/murder-and-manslaughter-abroad-family-information-guide/murder-and-manslaughter-abroad-family-information-guide-for-england-and-wales",
@@ -14,6 +16,7 @@
     "content": "GOV.UK identifies the FCDO as the contact point when a family member has died by murder or manslaughter abroad. The guide says family members may also receive support from a dedicated FCDO case manager and, if eligible and referred or self-referred, from the Homicide Service in England and Wales."
   },
   {
+    "id": "govuk-fcdo-case-manager",
     "title": "How an FCDO case manager can help",
     "sourceName": "GOV.UK",
     "sourceUrl": "https://www.gov.uk/government/publications/murder-and-manslaughter-abroad-family-information-guide/murder-and-manslaughter-abroad-family-information-guide-for-england-and-wales",
@@ -21,6 +24,7 @@
     "content": "GOV.UK says an FCDO case manager can work with the family to understand immediate support needs, outline practical steps, provide information about repatriation or burial or cremation overseas, explain the legal and investigative process in the country involved, and agree how to stay in contact by phone, email, video call, or in person."
   },
   {
+    "id": "govuk-ongoing-consular-support",
     "title": "Ongoing FCDO and consular support",
     "sourceName": "GOV.UK",
     "sourceUrl": "https://www.gov.uk/government/publications/murder-and-manslaughter-abroad-family-information-guide/murder-and-manslaughter-abroad-family-information-guide-for-england-and-wales",
@@ -28,6 +32,7 @@
     "content": "GOV.UK says ongoing FCDO support may include advice on local customs and what to expect, help arranging airport assistance, the option to meet a consular officer at the nearest British embassy or consulate, help arranging a meeting with local police or investigating authorities, lists of English-speaking lawyers and translators, support attending some overseas trial dates, and advice on media interest."
   },
   {
+    "id": "govuk-limits-of-uk-government-power",
     "title": "Limits of UK government power abroad",
     "sourceName": "GOV.UK",
     "sourceUrl": "https://www.gov.uk/government/publications/murder-and-manslaughter-abroad-family-information-guide/murder-and-manslaughter-abroad-family-information-guide-for-england-and-wales",
@@ -35,6 +40,7 @@
     "content": "GOV.UK says legal cases abroad can last a long time. The UK government has no power to speed up court cases, change how trials are run in other countries, force overseas authorities to share information, or conduct investigations in another country."
   },
   {
+    "id": "govuk-language-and-interpreters",
     "title": "What if I do not speak the language",
     "sourceName": "GOV.UK",
     "sourceUrl": "https://www.gov.uk/government/publications/murder-and-manslaughter-abroad-family-information-guide/murder-and-manslaughter-abroad-family-information-guide-for-england-and-wales",
@@ -42,6 +48,7 @@
     "content": "GOV.UK says it can be difficult to understand another justice system if it is not in a language you speak. Translation support may be available through the Homicide Service to help understand case information, and families can use the FCDO list of English-speaking translators and interpreters abroad. GOV.UK says an FCDO case manager cannot provide an interpreter, but the Homicide Service may support finding and paying for one from an approved supplier."
   },
   {
+    "id": "govuk-lawyers-abroad",
     "title": "Lawyers abroad",
     "sourceName": "GOV.UK",
     "sourceUrl": "https://www.gov.uk/government/publications/murder-and-manslaughter-abroad-family-information-guide/murder-and-manslaughter-abroad-family-information-guide-for-england-and-wales",
@@ -49,6 +56,7 @@
     "content": "GOV.UK says investigations and legal proceedings abroad can take an unknown amount of time. Families could consider appointing a local lawyer to support them through the legal process. The FCDO case manager can help explain what to expect and provide a list of local lawyers."
   },
   {
+    "id": "govuk-financial-support-and-costs",
     "title": "Financial support and costs",
     "sourceName": "GOV.UK",
     "sourceUrl": "https://www.gov.uk/government/publications/murder-and-manslaughter-abroad-family-information-guide/murder-and-manslaughter-abroad-family-information-guide-for-england-and-wales",
@@ -56,6 +64,7 @@
     "content": "GOV.UK says the UK government cannot directly cover costs such as travel, translation, or legal advice. The Homicide Service may discuss individual needs and may be able to help with costs directly linked to the murder or manslaughter, including repatriation, essential travel for criminal justice reasons, legal advice related to the investigation or trial, and translation. Families should also check whether overseas authorities, an employer, or travel insurance may cover some costs."
   },
   {
+    "id": "govuk-repatriation-and-funeral-decisions",
     "title": "Repatriation and funeral decisions",
     "sourceName": "GOV.UK",
     "sourceUrl": "https://www.gov.uk/government/publications/murder-and-manslaughter-abroad-family-information-guide/murder-and-manslaughter-abroad-family-information-guide-for-england-and-wales",
@@ -63,6 +72,7 @@
     "content": "GOV.UK says each country has its own process for burial, cremation, and bringing a body home. The FCDO case manager and Homicide Service caseworker can explain options, local practices, and documents needed. The FCDO can explain repatriation or funeral options abroad, the role of the coroner if the body is brought back to England or Wales, and help with belongings if possible. If repatriation is chosen, the family will need to appoint an international funeral director."
   },
   {
+    "id": "ma-repatriation-advice",
     "title": "Repatriation advice from Murdered Abroad",
     "sourceName": "Murdered Abroad Charity",
     "sourceUrl": "https://www.murdered-abroad.org.uk/repatriation",
@@ -70,6 +80,7 @@
     "content": "Murdered Abroad says next of kin may be asked whether a British citizen killed abroad should be buried or cremated abroad, or repatriated to England or Wales. The charity says repatriation can trigger an inquest in England and Wales, while burial or cremation abroad will not. It describes repatriation as complex and potentially costly, involving local requirements, permissions, translation, embalming, and careful organisation. It advises checking whether costs can be reclaimed through personal or travel insurance."
   },
   {
+    "id": "govuk-coroner-after-repatriation",
     "title": "Coroner involvement after repatriation",
     "sourceName": "GOV.UK",
     "sourceUrl": "https://www.gov.uk/government/publications/murder-and-manslaughter-abroad-family-information-guide/murder-and-manslaughter-abroad-family-information-guide-for-england-and-wales",
@@ -77,6 +88,7 @@
     "content": "GOV.UK says a coroner may need to be involved when a body is repatriated to England and Wales. A coroner investigates deaths that are unnatural or violent, where the cause is unknown, or where the death happened in state detention. GOV.UK says coroners can only investigate where a body is present in England and Wales, and they do not decide guilt, blame, or civil liability."
   },
   {
+    "id": "ma-coroner-information",
     "title": "Coroner information from Murdered Abroad",
     "sourceName": "Murdered Abroad Charity",
     "sourceUrl": "https://www.murdered-abroad.org.uk/the-coroner",
@@ -84,6 +96,7 @@
     "content": "Murdered Abroad says that unless a loved one is repatriated to England or Wales and not buried or cremated in the country of death, the coroner will not be able to investigate. The charity describes the coroner's role as inquisitive, not about blame, and focused on establishing who died and when, where, and how they died. It also says essential documents in a foreign language may be translated for use in evidence."
   },
   {
+    "id": "ma-post-mortem-after-repatriation",
     "title": "Post-mortem after repatriation",
     "sourceName": "Murdered Abroad Charity",
     "sourceUrl": "https://www.murdered-abroad.org.uk/repatriation",
@@ -91,6 +104,7 @@
     "content": "Murdered Abroad says that if a loved one has been murdered or died in suspicious circumstances, a full forensic post-mortem after repatriation to the UK can help gather samples for a murder investigation and may help explain how the person died. The charity says families can request a full forensic post-mortem if it does not happen automatically, and can ask the coroner or coroner's officer to check whether one is taking place."
   },
   {
+    "id": "ma-police-in-england-and-wales",
     "title": "Police involvement in England and Wales",
     "sourceName": "Murdered Abroad Charity",
     "sourceUrl": "https://www.murdered-abroad.org.uk/police",
@@ -98,6 +112,7 @@
     "content": "Murdered Abroad says the death of a British citizen abroad should be investigated by the appropriate authorities in that country. It says police in England and Wales may become involved in specific circumstances, including identification requests, requests from overseas authorities for UK enquiries, coroner requests after the body is returned, some cases involving British suspects, conspiracies in England and Wales, family requests for advice, or formal overseas requests for direct investigative assistance. The charity notes that police in England and Wales have no power to conduct criminal investigations overseas."
   },
   {
+    "id": "govuk-investigation-abroad",
     "title": "Investigation abroad",
     "sourceName": "GOV.UK",
     "sourceUrl": "https://www.gov.uk/government/publications/murder-and-manslaughter-abroad-family-information-guide/murder-and-manslaughter-abroad-family-information-guide-for-england-and-wales",
@@ -105,6 +120,7 @@
     "content": "GOV.UK says the investigation will be handled according to the system in the country where the death happened. The FCDO case manager may seek updates from overseas authorities, share information they receive, and communicate concerns or difficulties to relevant overseas authorities. GOV.UK says the UK government cannot force overseas authorities to share information or change how the investigation or trial is run."
   },
   {
+    "id": "govuk-court-proceedings-abroad",
     "title": "Court and legal proceedings abroad",
     "sourceName": "GOV.UK",
     "sourceUrl": "https://www.gov.uk/government/publications/murder-and-manslaughter-abroad-family-information-guide/murder-and-manslaughter-abroad-family-information-guide-for-england-and-wales",
@@ -112,6 +128,7 @@
     "content": "GOV.UK says legal cases abroad can last a long time. During court and legal proceedings abroad, an FCDO case manager may seek updates from overseas authorities, share hearing dates or progress updates they receive, agree regular contact with the family, support attendance at trial where possible, and communicate concerns to overseas authorities. The Homicide Service may offer emotional support and financial help with essential travel linked to criminal justice processes."
   },
   {
+    "id": "govuk-media-attention",
     "title": "Media attention",
     "sourceName": "GOV.UK",
     "sourceUrl": "https://www.gov.uk/government/publications/murder-and-manslaughter-abroad-family-information-guide/murder-and-manslaughter-abroad-family-information-guide-for-england-and-wales",
@@ -119,6 +136,7 @@
     "content": "GOV.UK says media contact after a death abroad can be upsetting and difficult to manage. It says an FCDO case manager and Homicide Service caseworker can provide information about managing media attention, including social media, and may help release media statements. It also says media support may be more limited if the media organisation is overseas, and if media attention makes someone feel unsafe they should contact local police."
   },
   {
+    "id": "ma-practical-support",
     "title": "Murdered Abroad practical support",
     "sourceName": "Murdered Abroad Charity",
     "sourceUrl": "https://www.murdered-abroad.org.uk/support",
@@ -126,6 +144,7 @@
     "content": "Murdered Abroad says it provides practical support to people bereaved by murder and manslaughter abroad. This includes helping families navigate from day one onwards without a time limit, explaining barriers and ways to overcome them, providing guidance on repatriation and the English and Welsh inquest process, speaking directly to police, coroners, the FCDO Murder and Manslaughter Team and other agencies on behalf of families, helping with post-mortem requests, seeking pro bono legal help, helping write letters, helping handle the media, and linking with victim organisations abroad."
   },
   {
+    "id": "ma-emotional-support",
     "title": "Murdered Abroad emotional support",
     "sourceName": "Murdered Abroad Charity",
     "sourceUrl": "https://www.murdered-abroad.org.uk/support",
@@ -133,6 +152,7 @@
     "content": "Murdered Abroad says it provides emotional support through peer support meetings, connecting people with similarities in their cases or circumstances, a 24-7 helpline, email support, and signposting or referral to specialist traumatic bereavement counselling services. The charity says it does not have official opening hours and aims to be responsive to international time zones."
   },
   {
+    "id": "ma-financial-support-limitation",
     "title": "Murdered Abroad financial limitation",
     "sourceName": "Murdered Abroad Charity",
     "sourceUrl": "https://www.murdered-abroad.org.uk/support",
@@ -140,6 +160,7 @@
     "content": "Murdered Abroad says it cannot provide financial support to individual families, but can signpost to other organisations that may be able to help. The charity also says there is no one-size-fits-all approach for cases this complex, and its response to each family is bespoke to their needs."
   },
   {
+    "id": "ma-contact-support",
     "title": "How to contact Murdered Abroad Charity",
     "sourceName": "Murdered Abroad Charity",
     "sourceUrl": "https://www.murdered-abroad.org.uk/contact",
@@ -147,6 +168,7 @@
     "content": "Murdered Abroad publishes its contact route as support@murdered-abroad.org.uk and its helpline as 0845 123 2384. The charity site says people who need help should get in touch."
   },
   {
+    "id": "ma-dealing-with-the-fcdo",
     "title": "Murdered Abroad and the FCDO",
     "sourceName": "Murdered Abroad Charity",
     "sourceUrl": "https://www.murdered-abroad.org.uk/fcdo",
@@ -154,6 +176,7 @@
     "content": "Murdered Abroad says families will have to deal with the FCDO if their next of kin has died abroad. The charity says that if the FCDO is informed of a British national's death abroad, it will ask UK police to notify the family as soon as possible. The charity says once a single family point of contact is agreed, the FCDO should assign a named caseworker from its Murder and Manslaughter Team to provide practical and country-specific information and offer referral to the Victim Support Homicide Service."
   },
   {
+    "id": "ma-no-legal-advice-disclaimer",
     "title": "No legal advice from Murdered Abroad website content",
     "sourceName": "Murdered Abroad Charity",
     "sourceUrl": "https://www.murdered-abroad.org.uk/support",

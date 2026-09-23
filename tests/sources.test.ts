@@ -7,6 +7,7 @@ import { buildSources } from '@/lib/sources';
 
 function entry(title: string, sourceName: string): KnowledgeEntry {
   return {
+    id: title,
     title,
     sourceName,
     sourceUrl: `https://example.org/${title}`,

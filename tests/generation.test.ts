@@ -12,6 +12,7 @@ import {
 import type { KnowledgeEntry } from '@/lib/knowledge-schema';
 
 const first: KnowledgeEntry = {
+  id: 'first',
   title: 'First',
   sourceName: 'GOV.UK',
   sourceUrl: 'https://www.gov.uk/first',
@@ -20,6 +21,7 @@ const first: KnowledgeEntry = {
 };
 
 const second: KnowledgeEntry = {
+  id: 'second',
   title: 'Second',
   sourceName: 'Murdered Abroad Charity',
   sourceUrl: 'https://www.murdered-abroad.org.uk/second',

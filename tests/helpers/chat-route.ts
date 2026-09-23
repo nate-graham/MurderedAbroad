@@ -17,6 +17,9 @@ type MockOpenAIOptions = {
 export const FALLBACK_PREFIX = 'I could not find a clear answer in the approved source material.';
 export const EMERGENCY_PREFIX = 'If there is immediate danger, contact emergency services immediately.';
 
+// A question the approved sources do not cover, used to trigger the fixed fallback.
+export const UNSUPPORTED_QUESTION = 'What is the weather like in Spain?';
+
 // Replaces global fetch for the duration of one test so no request reaches OpenAI.
 // Returns the parsed request bodies the route sent.
 export function mockOpenAI(t: TestContext, { content = 'Mock answer', status = 200 }: MockOpenAIOptions = {}) {

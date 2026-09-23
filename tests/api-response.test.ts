@@ -9,6 +9,7 @@ import {
   FALLBACK_PREFIX,
   mockOpenAI,
   silenceConsole,
+  UNSUPPORTED_QUESTION,
 } from './helpers/chat-route';
 import { signposting } from '@/lib/signposting';
 
@@ -108,18 +109,18 @@ describe('response shapes', () => {
 
   test('KNOWN WEAKNESS: sources are de-duplicated by source name, not by entry used', async (t) => {
     mockOpenAI(t);
-    // Five entries are retrieved (see retrieval baseline), but only one source per publisher is returned.
-    const { json } = await askChat('What if I do not speak the language?');
+    // Four entries are retrieved (two per publisher), but only one source per publisher is returned.
+    const { json } = await askChat('Who can help with repatriation?');
 
     assert.deepEqual(
       json.sources.map((source) => `${source.sourceName} | ${source.title}`),
-      ['GOV.UK | What if I do not speak the language', 'Murdered Abroad Charity | Coroner information from Murdered Abroad']
+      ['GOV.UK | Repatriation and funeral decisions', 'Murdered Abroad Charity | Repatriation advice from Murdered Abroad']
     );
   });
 
   test('fallback response returns the fixed answer and contact source', async (t) => {
     mockOpenAI(t);
-    const { status, json } = await askChat('lawyer');
+    const { status, json } = await askChat(UNSUPPORTED_QUESTION);
 
     assert.equal(status, 200);
     assert.ok(json.answer.startsWith(FALLBACK_PREFIX));
@@ -138,7 +139,7 @@ describe('response shapes', () => {
 
   test('hardcoded contact details match the central signposting config', async (t) => {
     mockOpenAI(t);
-    const { json: fallback } = await askChat('lawyer');
+    const { json: fallback } = await askChat(UNSUPPORTED_QUESTION);
     const { json: emergency } = await askChat('I am in immediate danger');
 
     for (const method of signposting.primaryContact.methods) {
