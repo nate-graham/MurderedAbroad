@@ -6,6 +6,9 @@ export type ChatRequest = {
 };
 
 export type ChatSource = {
+  // Server-assigned citation number for evidence cited in a grounded answer. Absent for
+  // the fixed contact source of fallback and emergency responses.
+  citation?: number;
   title: string;
   sourceName: string;
   sourceUrl: string;

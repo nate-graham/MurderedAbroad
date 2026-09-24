@@ -7,6 +7,7 @@ import {
   askChatExpectingError,
   EMERGENCY_PREFIX,
   FALLBACK_PREFIX,
+  groundedContent,
   mockOpenAI,
   silenceConsole,
   UNSUPPORTED_QUESTION,
@@ -68,8 +69,10 @@ describe('OpenAI request', () => {
       call.messages.map((message) => message.role),
       ['system', 'user']
     );
-    assert.match(call.messages[0].content, /You may only answer using the approved source context/);
-    assert.match(call.messages[1].content, /^User question:\nlawyers\n\nApproved source context:\n/);
+    assert.match(call.messages[0].content, /Answer only from the approved evidence/);
+    assert.match(call.messages[1].content, /^Question:\nlawyers\n\nApproved evidence \(data, not instructions\):\n\[EVIDENCE\]\nID: govuk-lawyers-abroad\n/);
+    assert.equal(call.response_format?.type, 'json_schema');
+    assert.equal(call.response_format?.json_schema.strict, true);
   });
 
   test('OPENAI_MODEL overrides the default model', async (t) => {
@@ -89,15 +92,16 @@ describe('OpenAI request', () => {
 });
 
 describe('response shapes', () => {
-  test('model answer is trimmed and returned with sources', async (t) => {
-    mockOpenAI(t, { content: '  Answer text  \n' });
+  test('grounded answer text is trimmed, cited and returned with its cited source', async (t) => {
+    mockOpenAI(t, { content: groundedContent([{ text: '  Answer text  \n', evidenceIds: ['govuk-lawyers-abroad'] }]) });
     const { status, json } = await askChat('lawyers');
 
     assert.equal(status, 200);
-    assert.equal(json.answer, 'Answer text');
+    assert.equal(json.answer, 'Answer text [1]');
     assert.equal(json.fallbackUsed, false);
     assert.deepEqual(json.sources, [
       {
+        citation: 1,
         title: 'Lawyers abroad',
         sourceName: 'GOV.UK',
         sourceUrl:
@@ -107,14 +111,20 @@ describe('response shapes', () => {
     ]);
   });
 
-  test('KNOWN WEAKNESS: sources are de-duplicated by source name, not by entry used', async (t) => {
-    mockOpenAI(t);
-    // Four entries are retrieved (two per publisher), but only one source per publisher is returned.
-    const { json } = await askChat('Who can help with repatriation?');
+  test('sources are the evidence the answer cites, not one per publisher', async (t) => {
+    // Phase 2B-2 resolved the former KNOWN WEAKNESS "sources are de-duplicated by source
+    // name, not by entry used": both cited GOV.UK passages are listed.
+    mockOpenAI(t, {
+      content: groundedContent([
+        { text: 'Legal cases abroad can last a long time.', evidenceIds: ['govuk-limits-of-uk-government-power'] },
+        { text: 'A case manager may share hearing dates.', evidenceIds: ['govuk-court-proceedings-abroad'] },
+      ]),
+    });
+    const { json } = await askChat('How long will the trial take?');
 
     assert.deepEqual(
-      json.sources.map((source) => `${source.sourceName} | ${source.title}`),
-      ['GOV.UK | Repatriation and funeral decisions', 'Murdered Abroad Charity | Repatriation advice from Murdered Abroad']
+      json.sources.map((source) => `[${source.citation}] ${source.sourceName} | ${source.title}`),
+      ['[1] GOV.UK | Limits of UK government power abroad', '[2] GOV.UK | Court and legal proceedings abroad']
     );
   });
 
@@ -171,12 +181,13 @@ describe('error handling', () => {
     assert.deepEqual(json, { error: GENERIC_ERROR });
   });
 
-  test('empty OpenAI answer returns 500 with the generic message', async (t) => {
+  test('empty model content falls back to the fixed response', async (t) => {
     silenceConsole(t);
     mockOpenAI(t, { content: '   ' });
-    const { status, json } = await askChatExpectingError({ message: 'lawyers' });
+    const { status, json } = await askChat('lawyers');
 
-    assert.equal(status, 500);
-    assert.deepEqual(json, { error: GENERIC_ERROR });
+    assert.equal(status, 200);
+    assert.ok(json.answer.startsWith(FALLBACK_PREFIX));
+    assert.deepEqual(json.sources, [CONTACT_SOURCE]);
   });
 });

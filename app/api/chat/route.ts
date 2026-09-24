@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { ChatErrorResponse, ChatSuccessResponse } from '@/lib/chat-types';
+import { renderCitedAnswer } from '@/lib/citations';
 import { emergencyResponse, fallbackResponse } from '@/lib/fixed-responses';
-import { generateAnswer } from '@/lib/generation';
+import { requestGroundedAnswer } from '@/lib/generation';
+import { validateGroundedOutput } from '@/lib/grounding';
 import { loadKnowledgeBase } from '@/lib/knowledge-base';
 import { retrieve } from '@/lib/retrieval';
 import { isEmergencyMessage } from '@/lib/safety';
-import { buildSources } from '@/lib/sources';
 
 export async function POST(request: Request) {
   try {
@@ -27,13 +28,18 @@ export async function POST(request: Request) {
       return NextResponse.json<ChatSuccessResponse>(fallbackResponse());
     }
 
-    const answer = await generateAnswer({ message, matches });
+    const output = await requestGroundedAnswer({ message, matches });
+    const grounded = validateGroundedOutput(output, matches);
 
-    return NextResponse.json<ChatSuccessResponse>({
-      answer,
-      sources: buildSources(matches),
-      fallbackUsed,
-    });
+    if (grounded.outcome !== 'answered') {
+      // Log only the class of failure: never the question or the model output.
+      console.warn('Grounded answer not used:', grounded.outcome === 'rejected' ? grounded.reason : 'unsupported');
+      return NextResponse.json<ChatSuccessResponse>(fallbackResponse());
+    }
+
+    const { answer, sources } = renderCitedAnswer(grounded.segments, matches);
+
+    return NextResponse.json<ChatSuccessResponse>({ answer, sources, fallbackUsed });
   } catch (error) {
     console.error('/api/chat failed:', error);
     return NextResponse.json<ChatErrorResponse>(

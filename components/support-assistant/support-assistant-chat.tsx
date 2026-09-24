@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import type { ChatErrorResponse, ChatSource, ChatSuccessResponse } from '@/lib/chat-types';
+import { SourceList } from './source-list';
 
 type ChatRole = 'assistant' | 'user';
 
@@ -154,20 +155,7 @@ export function SupportAssistantChat() {
                       material.
                     </p>
                   ) : null}
-                  {message.sources?.length ? (
-                    <div className="source-list" aria-label="Sources used">
-                      <span>Sources</span>
-                      <ul>
-                        {message.sources.map((source) => (
-                          <li key={`${message.id}-${source.category}-${source.title}`}>
-                            <a href={source.sourceUrl} rel="noreferrer" target="_blank">
-                              {source.sourceName}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
+                  {message.sources ? <SourceList messageId={message.id} sources={message.sources} /> : null}
                 </article>
               ))}
               {loading ? (

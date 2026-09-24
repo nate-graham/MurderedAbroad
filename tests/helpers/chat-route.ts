@@ -7,12 +7,33 @@ export type OpenAIRequestBody = {
   messages: Array<{ role: string; content: string }>;
   temperature: number;
   max_tokens: number;
+  response_format?: { type: string; json_schema: { name: string; strict: boolean } };
 };
 
 type MockOpenAIOptions = {
-  content?: string | null;
+  // Raw message content, or a function of the request. Defaults to a valid grounded
+  // answer citing the first evidence passage in the request.
+  content?: string | null | ((request: OpenAIRequestBody) => string);
+  refusal?: string;
+  // The completion's finish_reason; null sends null, omitFinishReason leaves it out.
+  finishReason?: string | null;
+  omitFinishReason?: boolean;
   status?: number;
 };
+
+export function groundedContent(segments: Array<{ text: string; evidenceIds: string[] }>) {
+  return JSON.stringify({ status: 'answered', segments });
+}
+
+// Evidence IDs supplied to the model, in context order.
+export function evidenceIdsInRequest(call: OpenAIRequestBody) {
+  const userMessage = call.messages.find((message) => message.role === 'user');
+  return [...(userMessage?.content ?? '').matchAll(/^ID: (.*)$/gm)].map((match) => match[1]);
+}
+
+function defaultGroundedContent(request: OpenAIRequestBody) {
+  return groundedContent([{ text: 'Mock answer', evidenceIds: evidenceIdsInRequest(request).slice(0, 1) }]);
+}
 
 export const FALLBACK_PREFIX = 'I could not find a clear answer in the approved source material.';
 export const EMERGENCY_PREFIX = 'If there is immediate danger, contact emergency services immediately.';
@@ -22,14 +43,26 @@ export const UNSUPPORTED_QUESTION = 'What is the weather like in Spain?';
 
 // Replaces global fetch for the duration of one test so no request reaches OpenAI.
 // Returns the parsed request bodies the route sent.
-export function mockOpenAI(t: TestContext, { content = 'Mock answer', status = 200 }: MockOpenAIOptions = {}) {
+export function mockOpenAI(
+  t: TestContext,
+  { content = defaultGroundedContent, refusal, finishReason = 'stop', omitFinishReason = false, status = 200 }: MockOpenAIOptions = {}
+) {
   const calls: OpenAIRequestBody[] = [];
 
   t.mock.method(globalThis, 'fetch', async (_input: RequestInfo | URL, init?: RequestInit) => {
-    calls.push(JSON.parse(String(init?.body)) as OpenAIRequestBody);
+    const request = JSON.parse(String(init?.body)) as OpenAIRequestBody;
+    calls.push(request);
+    const messageContent = typeof content === 'function' ? content(request) : content;
     const body =
       status === 200
-        ? { choices: [{ message: { content } }] }
+        ? {
+            choices: [
+              {
+                message: { content: refusal ? null : messageContent, refusal: refusal ?? null },
+                ...(omitFinishReason ? {} : { finish_reason: finishReason }),
+              },
+            ],
+          }
         : { error: { message: 'mock upstream error' } };
     return new Response(JSON.stringify(body), { status });
   });
