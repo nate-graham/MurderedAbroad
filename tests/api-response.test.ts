@@ -46,13 +46,13 @@ describe('request validation', () => {
     });
   }
 
-  test('KNOWN WEAKNESS: invalid JSON returns 500 instead of 400', async (t) => {
-    silenceConsole(t);
-    mockOpenAI(t);
+  test('invalid JSON returns 400', async (t) => {
+    const calls = mockOpenAI(t);
     const { status, json } = await askChatExpectingError('{not json', { raw: true });
 
-    assert.equal(status, 500);
-    assert.deepEqual(json, { error: GENERIC_ERROR });
+    assert.equal(status, 400);
+    assert.deepEqual(json, { error: 'Please enter a question.' });
+    assert.equal(calls.length, 0);
   });
 });
 

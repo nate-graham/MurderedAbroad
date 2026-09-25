@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { isMessageTooLong, MESSAGE_TOO_LONG_ERROR, readChatRequest } from '@/lib/chat-request';
 import type { ChatErrorResponse, ChatSuccessResponse } from '@/lib/chat-types';
 import { renderCitedAnswer } from '@/lib/citations';
 import { emergencyResponse, fallbackResponse } from '@/lib/fixed-responses';
@@ -10,15 +11,20 @@ import { isEmergencyMessage } from '@/lib/safety';
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { message?: unknown };
-    const message = typeof body.message === 'string' ? body.message.trim() : '';
-
-    if (!message) {
-      return NextResponse.json<ChatErrorResponse>({ error: 'Please enter a question.' }, { status: 400 });
+    const parsed = await readChatRequest(request);
+    if (!parsed.ok) {
+      return NextResponse.json<ChatErrorResponse>({ error: parsed.error }, { status: 400 });
     }
+    const { message } = parsed;
 
+    // Crisis detection runs before the length limit so that a long message describing
+    // a crisis still receives the emergency guidance rather than an error.
     if (isEmergencyMessage(message)) {
       return NextResponse.json<ChatSuccessResponse>(emergencyResponse());
+    }
+
+    if (isMessageTooLong(message)) {
+      return NextResponse.json<ChatErrorResponse>({ error: MESSAGE_TOO_LONG_ERROR }, { status: 400 });
     }
 
     const knowledgeBase = await loadKnowledgeBase();

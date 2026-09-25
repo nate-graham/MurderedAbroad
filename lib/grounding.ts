@@ -1,10 +1,10 @@
 // Structured, evidence-linked model output: the JSON schema requested from OpenAI and
 // the server-side validator that decides whether an answer may reach the user.
-import type { KnowledgeEntry } from '@/lib/knowledge-schema';
 //
 // Provider schema enforcement is not trusted on its own; every rule is checked here.
 // Validation proves that each segment cites evidence retrieval selected. It cannot
 // prove that the cited passage semantically supports the segment's wording.
+import type { KnowledgeEntry } from '@/lib/knowledge-schema';
 
 export type GroundedSegment = {
   text: string;
@@ -32,7 +32,8 @@ export type GroundingFailureReason =
   | 'duplicate-evidence-id'
   | 'unselected-evidence-id'
   | 'metadata-in-text'
-  | 'uncited-email';
+  | 'uncited-email'
+  | 'uncited-phone';
 
 export type GroundingResult =
   | { outcome: 'answered'; segments: GroundedSegment[] }
@@ -155,6 +156,31 @@ function hasUncitedEmail(emails: EmailToken[], citedEntries: KnowledgeEntry[]) {
   return emails.some((email) => !cited.has(email.address));
 }
 
+// Phone numbers. A candidate is a run of digits that may include a leading "+", spaces,
+// hyphens, dots, slashes and parentheses; it is a phone number if it has at least 9
+// digits, which excludes dates, years, prices and short counts. Numbers are compared
+// digits-only (keeping a leading "+"), so "0845 123 2384", "0845.123.2384" and
+// "(0845) 1232384" match, while "+44 845 123 2384" is a different number. A phone
+// number in answer text must appear in the evidence that segment cites.
+const PHONE_CANDIDATE_PATTERN = /\+?\(?\d[\d ()\t./-]*\d/g;
+const MIN_PHONE_DIGITS = 9;
+
+function extractPhoneNumbers(text: string): string[] {
+  const numbers: string[] = [];
+  for (const match of text.matchAll(PHONE_CANDIDATE_PATTERN)) {
+    const digits = match[0].replace(/\D/g, '');
+    if (digits.length >= MIN_PHONE_DIGITS) numbers.push(`${match[0].startsWith('+') ? '+' : ''}${digits}`);
+  }
+  return numbers;
+}
+
+function hasUncitedPhone(text: string, citedEntries: KnowledgeEntry[]) {
+  const written = extractPhoneNumbers(text);
+  if (written.length === 0) return false;
+  const cited = new Set(citedEntries.flatMap((entry) => extractPhoneNumbers(entry.content)));
+  return written.some((number) => !cited.has(number));
+}
+
 class GroundingError extends Error {
   constructor(readonly reason: GroundingFailureReason) {
     super(reason);
@@ -194,6 +220,7 @@ function validateSegment(value: unknown, selectedById: ReadonlyMap<string, Knowl
   const emails = extractEmailTokens(trimmed);
   if (containsSourceMetadata(trimmed, emails)) throw new GroundingError('metadata-in-text');
   if (hasUncitedEmail(emails, citedEntries)) throw new GroundingError('uncited-email');
+  if (hasUncitedPhone(trimmed, citedEntries)) throw new GroundingError('uncited-phone');
 
   return { text: trimmed, evidenceIds: ids };
 }
@@ -223,7 +250,8 @@ function validate(output: ModelOutput, selectedById: ReadonlyMap<string, Knowled
 }
 
 // `selectedEntries` are the passages retrieval selected for this question: the only
-// evidence a segment may cite, and the authority for any email address it writes.
+// evidence a segment may cite, and the authority for any email address or phone number
+// it writes.
 export function validateGroundedOutput(output: ModelOutput, selectedEntries: readonly KnowledgeEntry[]): GroundingResult {
   try {
     return validate(output, new Map(selectedEntries.map((entry) => [entry.id, entry])));

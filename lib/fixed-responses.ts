@@ -24,10 +24,12 @@ export function fallbackResponse(): ChatSuccessResponse {
   };
 }
 
+// Not a retrieval fallback: the question was recognised and answered with the fixed
+// emergency guidance, so fallbackUsed is false.
 export function emergencyResponse(): ChatSuccessResponse {
   return {
     answer: emergencyAnswer,
     sources: [charityContactSource],
-    fallbackUsed: true,
+    fallbackUsed: false,
   };
 }

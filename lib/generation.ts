@@ -34,6 +34,31 @@ type ChatCompletionResponse = {
   }>;
 };
 
+// Provider error codes we recognise and may log: quota, rate limiting and the
+// configuration errors this integration can hit (key, model, prompt size). Anything
+// else, and the error message and body, are never logged, because upstream errors can
+// echo the request, which contains the question and the evidence.
+const LOGGABLE_ERROR_CODES: ReadonlySet<string> = new Set([
+  'insufficient_quota',
+  'rate_limit_exceeded',
+  'invalid_api_key',
+  'model_not_found',
+  'context_length_exceeded',
+]);
+
+async function providerErrorCode(response: Response): Promise<string> {
+  try {
+    const body: unknown = await response.json();
+    if (typeof body !== 'object' || body === null || !('error' in body)) return 'unknown';
+    const { error } = body;
+    if (typeof error !== 'object' || error === null || !('code' in error)) return 'unknown';
+    const { code } = error;
+    return typeof code === 'string' && LOGGABLE_ERROR_CODES.has(code) ? code : 'unknown';
+  } catch {
+    return 'unknown';
+  }
+}
+
 // One delimited block per selected passage, keyed by its stable evidence ID. URLs are
 // not supplied: the server owns citation metadata.
 export function buildEvidenceContext(matches: KnowledgeEntry[]) {
@@ -101,8 +126,7 @@ export async function requestGroundedAnswer({
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error('OpenAI API request failed:', response.status, errorText);
+    console.error('OpenAI API request failed:', response.status, await providerErrorCode(response));
     throw new Error('OpenAI API request failed');
   }
 

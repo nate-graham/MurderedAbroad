@@ -67,7 +67,7 @@ describe('emergency path independence', () => {
 
     assert.equal(status, 200);
     assert.ok(json.answer.startsWith(EMERGENCY_PREFIX));
-    assert.equal(json.fallbackUsed, true);
+    assert.equal(json.fallbackUsed, false);
     assert.equal(readFile.mock.callCount(), 0);
     assert.equal(openAICalls.length, 0);
   });

@@ -78,7 +78,8 @@ describe('exact fixed responses', () => {
     const { status, json } = await askChat('I am in immediate danger');
 
     assert.equal(status, 200);
-    assert.deepEqual(json, { answer: EMERGENCY_ANSWER, sources: [CONTACT_SOURCE], fallbackUsed: true });
+    // Phase 3A: the emergency response is no longer labelled as a retrieval fallback.
+    assert.deepEqual(json, { answer: EMERGENCY_ANSWER, sources: [CONTACT_SOURCE], fallbackUsed: false });
   });
 
   test('success response JSON has keys in order answer, sources, fallbackUsed', async (t) => {
@@ -185,7 +186,8 @@ describe('ordering of checks', () => {
 
   test('emergency check runs before retrieval even when the message matches knowledge entries', async (t) => {
     const calls = captureFetch(t, okCompletion('unused'));
-    const { json } = await askChat('emergency lawyers repatriation');
+    // Since Phase 3A the bare word "emergency" is not a crisis; use a crisis phrase.
+    const { json } = await askChat('I want to die, lawyers repatriation');
 
     assert.equal(json.answer, EMERGENCY_ANSWER);
     assert.equal(calls.length, 0);
@@ -205,23 +207,23 @@ describe('request body edge cases', () => {
     assert.equal(status, 400);
   });
 
-  test('KNOWN WEAKNESS: JSON null body returns 500 instead of 400', async (t) => {
-    silenceConsole(t);
+  test('JSON null body returns 400', async (t) => {
     captureFetch(t, okCompletion('unused'));
-    const { status } = await askChatExpectingError('null', { raw: true });
-    assert.equal(status, 500);
+    const { status, json } = await askChatExpectingError('null', { raw: true });
+    assert.equal(status, 400);
+    assert.deepEqual(json, { error: 'Please enter a question.' });
   });
 });
 
 describe('error logging', () => {
-  test('OpenAI failure logs status and body, then the route failure', async (t) => {
+  test('OpenAI failure logs the status and a safe error code (never the body), then the route failure', async (t) => {
     const errors = t.mock.method(console, 'error', () => {});
     captureFetch(t, () => new Response('upstream body', { status: 503 }));
     const { status } = await askChatExpectingError({ message: 'lawyers' });
 
     assert.equal(status, 500);
     assert.equal(errors.mock.callCount(), 2);
-    assert.deepEqual(errors.mock.calls[0].arguments, ['OpenAI API request failed:', 503, 'upstream body']);
+    assert.deepEqual(errors.mock.calls[0].arguments, ['OpenAI API request failed:', 503, 'unknown']);
     assert.equal(errors.mock.calls[1].arguments[0], '/api/chat failed:');
     assert.equal((errors.mock.calls[1].arguments[1] as Error).message, 'OpenAI API request failed');
   });
